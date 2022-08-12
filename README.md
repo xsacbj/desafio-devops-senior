@@ -17,5 +17,5 @@ clientes de uma forma rápida qual a previsão de quando o automóvel estará pr
 O sistema em questão permite que os mecânicos pudessam informar a equipe de atendimento que tipos de serviços serão necessários para realizar a manutenção completa 
 do veículo e qual o tempo previsto para cada uma dessas atividades.
 
-Assim a equipe de atendimento poderia dizer ao cliente o estado atual da manutenção, quais serviços 
+Assim a equipe de atendimento pode dizer ao cliente o estado atual da manutenção, quais serviços 
 já foram concluídos e quanto tempo mais precisa para ser finalizado.
