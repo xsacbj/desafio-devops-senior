@@ -8,4 +8,6 @@ def response(status, contentName, content, message=False):
     if(message):
         body["message"] = message
 
-    return Response(json.dumps(body), status=status, mimetype='application/json')
+    res = Response(json.dumps(body), status=status, mimetype='application/json')
+
+    return res

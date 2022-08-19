@@ -17,9 +17,9 @@ class AuthController:
     def auth():
         body = request.get_json()
 
-        # try:
-        token = self.AuthService.auth(body)
-        return response(200, "token", token, "User authenticated")
-        # except Exception as e:
-        #   return response(400, "error", str(e), "Error on authenticate user")
+        try:
+          token = self.AuthService.auth(body)
+          return response(200, "token", token, "User authenticated")
+        except Exception as e:
+          return response(400, "error", str(e), "Error on authenticate user")
     
