@@ -22,14 +22,14 @@ class ServiceController:
     
     # Selecionar Todos os serviços de uma manutenção
     @app.route("/services/<Maintenance_id>", methods=["GET"])
-    def getServices():
+    def getServicesByMaintenance(Maintenance_id):
 
         services = self.ServiceService.listByMaintenanceId()
 
         return response(200, "services", services)
 
     # Selecionar Individual
-    @app.route("/service/<id>", methods=["GET"])
+    @app.route("/service/<id>", methods=["POST"])
     def getService(id):
 
         service = self.ServiceService.findById(id)

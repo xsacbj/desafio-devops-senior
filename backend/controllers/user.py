@@ -15,7 +15,7 @@ class UserController:
     # Selecionar Tudo
     @app.route("/users", methods=["GET"])
     def getUsers():
-
+        
         users = self.UserService.list()
 
         return response(200, "users", users)
