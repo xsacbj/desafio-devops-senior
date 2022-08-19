@@ -13,7 +13,4 @@ def configDatabase(app):
 
 def createTables(db):
     createModels(db)
-
-    db.create_all()
-    db.session.commit()
     return True

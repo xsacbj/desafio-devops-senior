@@ -12,8 +12,6 @@ def createPermission(db):
         
         id = db.Column(db.Integer, primary_key= True)
         name = db.Column(db.String(45))
-        action = db.Column(db.String(45))
-        resource = db.Column(db.String(45))
 
         def serialize(self):
             data = Serializer.serialize(self)
