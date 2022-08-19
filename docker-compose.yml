@@ -9,7 +9,7 @@ services:
       DEBUG: "True"
       SECRET_KEY: "secret"
     ports:
-      - "3000:5000"
+      - "5000:5000"
     depends_on:
       - db
     networks:
