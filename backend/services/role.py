@@ -3,29 +3,33 @@ sys.path.append('..')
 
 from database.models.Role import getRole
 from database.models.Role_has_Permission import getRole_has_Permission
+from database.models.Permission import getPermission
 
 class RoleService:
   def __init__(self):
     self.Role = getRole()
     self.Role_has_Permission = getRole_has_Permission()
+    self.Permission = getPermission()
 
   def list(self):    
     roles = self.Role.query.all()
     roles = self.User.serialize_list(users)
     for role, index in roles:
       role['permissions'] = self.Role_has_Permission.query.filter_by(Role_id=role['id']).all()
-      for role_has_permission, index in role['permissions']:
+      role['permissions'] = self.Role_has_Permission.serialize_list(role['permissions'])
+      for index, role_has_permission  in enumerate(role['permissions']):
         permission = self.Permission.query.filter_by(id=role_has_permission['Permission_id']).first()
-        role['permissions'][index] = permission.serialize().name
+        role['permissions'][index] = permission.serialize()['name']
     return roles
 
   def findById(self, id):
     role = self.Role.query.filter_by(id=id).first()
-    role = user.serialize()
+    role = role.serialize()
     role['permissions'] = self.Role_has_Permission.query.filter_by(Role_id=role['id']).all()
-    for role_has_permission, index in role['permissions']:
+    role['permissions'] = self.Role_has_Permission.serialize_list(role['permissions'])
+    for index, role_has_permission in enumerate(role['permissions']):
       permission = self.Permission.query.filter_by(id=role_has_permission['Permission_id']).first()
-      role['permissions'][index] = permission.serialize().name
+      role['permissions'][index] = permission.serialize()['name']
 
     return role
 
@@ -47,22 +51,27 @@ class RoleService:
     attributes.remove('permissions')
     
     for attribute in attributes:
-      userAttributes[attribute] = data[attribute]
+      roleAttributes[attribute] = data[attribute]
 
     role = self.Role(**roleAttributes)
     db.session.add(role)
-
+    db.session.commit()
+    print("Roles permissions: ", data['permissions'])
     for permissionName in data['permissions']:
       permission = self.Permission.query.filter_by(name=permissionName).first()
-      role_has_Permission = self.Role_has_Permission(Role_id=role.id, Permission_id=permission.id)
-      db.session.add(role_has_Permission)
+      print("Permission: ", permission,flush=True)
+      if permission is not None:
+        role_has_Permission = self.Role_has_Permission(Role_id=role.id, Permission_id=permission.id)
+        db.session.add(role_has_Permission)
 
     db.session.commit()
     role = role.serialize()
     role['permissions'] = self.Role_has_Permission.query.filter_by(Role_id=role['id']).all()
-    for role_has_permission, index in role['permissions']:
+    role['permissions'] = self.Role_has_Permission.serialize_list(role['permissions'])
+    
+    for index, role_has_permission  in enumerate(role['permissions']):
       permission = self.Permission.query.filter_by(id=role_has_permission['Permission_id']).first()
-      role['permissions'][index] = permission.serialize().name
+      role['permissions'][index] = permission.serialize()['name']
 
     return role
   
@@ -81,6 +90,7 @@ class RoleService:
 
     role = role.serialize()
     role['permissions'] = self.Role_has_Permission.query.filter_by(Role_id=role['id']).all()
+    role['permissions'] = self.Role_has_Permission.serialize_list(role['permissions'])
 
     for permission in role['permissions']:
       if permission.name not in data['permissions']:
@@ -89,14 +99,18 @@ class RoleService:
     for permissionName in data['permissions']:
       if permissionName not in role['permissions'].map(lambda permission: permission.name):
         permission = self.Permission.query.filter_by(name=permissionName).first()
-        role_has_Permission = self.Role_has_Permission(Role_id=role['id'], Permission_id=permission.id)
-        db.session.add(role_has_Permission)
+        if permission is not None:
+          role_has_Permission = self.Role_has_Permission(Role_id=role['id'], Permission_id=permission.id)
+          db.session.add(role_has_Permission)
 
     db.session.commit()
+    
     role['permissions'] = self.Role_has_Permission.query.filter_by(Role_id=role['id']).all()
-    for role_has_permission, index in role['permissions']:
+    role['permissions'] = self.Role_has_Permission.serialize_list(role['permissions'])
+
+    for index, role_has_permission in enumerate(role['permissions']):
       permission = self.Permission.query.filter_by(id=role_has_permission['Permission_id']).first()
-      role['permissions'][index] = permission.serialize().name
+      role['permissions'][index] = permission.serialize()['name']
 
     return role
   

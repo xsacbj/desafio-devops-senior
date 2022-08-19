@@ -39,7 +39,7 @@ class MaintenanceService:
     maintenanceAttributes['status'] = 'pending'
     maintenanceAttributes['timeEstimate'] = 0
 
-    maintenance = self.Role(**maintenanceAttributes)
+    maintenance = self.Maintenance(**maintenanceAttributes)
     db.session.add(maintenance)
     db.session.commit()
     return maintenance.serialize()

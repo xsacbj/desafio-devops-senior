@@ -23,7 +23,7 @@ class PermissionService:
     db = self.Permission.__database__
 
     permissionAttributes = {}
-    attributes = {'name', 'action', 'resource'}
+    attributes = {'name'}
     attributesMissing = ', '.join([attr for attr in attributes if attr not in data])
     
     if len(attributesMissing) > 0:
@@ -37,7 +37,7 @@ class PermissionService:
     for attribute in attributes:
       permissionAttributes[attribute] = data[attribute]
 
-    permission = self.Role(**permissionAttributes)
+    permission = self.Permission(**permissionAttributes)
     db.session.add(permission)
     db.session.commit()
     return permission.serialize()
@@ -47,7 +47,7 @@ class PermissionService:
 
     permission = self.Permission.query.filter_by(id=id).first()
     
-    attributes = {'name', 'action', 'resource'}
+    attributes = {'name'}
 
     for attribute in attributes:
       if(attribute in data):

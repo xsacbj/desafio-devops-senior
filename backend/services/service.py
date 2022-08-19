@@ -14,7 +14,7 @@ class ServiceService:
 
     return self.Service.serialize_list(services)
   
-  def listByMaintenanceId(self, Maintenance_id):):    
+  def listByMaintenanceId(self, Maintenance_id):  
     services = self.Service.query.filter_by(Maintenance_id=Maintenance_id).all()
 
     return self.Service.serialize_list(services)
@@ -40,8 +40,9 @@ class ServiceService:
 
     serviceAttributes['status'] = 'pending'
 
-    service = self.Role(**serviceAttributes)
+    service = self.Service(**serviceAttributes)
     db.session.add(service)
+    db.session.commit()
     service = service.serialize()
 
     maintenance = self.Maintenance.query.filter_by(id=data['Maintenance_id']).first()
@@ -60,11 +61,14 @@ class ServiceService:
 
     if(service is None):
       raise Exception("Service not found")
-    timeDifference = 0
-
-    if data['time'] is not None:
-      timeDifference = service.time - data['time']
     
+    timeDifference = 0
+    try:
+      if data['time'] is not None:
+        timeDifference = service.time - data['time']
+    except:
+      pass
+
     attributes = {'description', 'time', 'status'}
 
     for attribute in attributes:
@@ -72,7 +76,8 @@ class ServiceService:
         setattr(service, attribute, data[attribute])
     
     db.session.add(service)
-    
+    db.session.commit()
+
     maintenance = self.Maintenance.query.filter_by(id=service.Maintenance_id).first()
     maintenance.timeEstimate = maintenance.timeEstimate - timeDifference
     
@@ -83,13 +88,13 @@ class ServiceService:
     someInProgress = False
     someDone = False
     
-    for service in services:
-      if service['status'] == 'pending':
+    for s in services:
+      if s['status'] == 'pending':
         somePending = True
-      if service['status'] == 'inProgress':
-        inProgress = True
-      if service['status'] == 'done':
-        Done = True  
+      if s['status'] == 'inProgress':
+        someInProgress = True
+      if s['status'] == 'done':
+        someDone = True  
     
     if somePending and not someInProgress and not someDone:
       maintenance.status = 'pending'
