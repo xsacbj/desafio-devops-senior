@@ -19,3 +19,24 @@ do veículo e qual o tempo previsto para cada uma dessas atividades.
 
 Assim a equipe de atendimento pode dizer ao cliente o estado atual da manutenção, quais serviços 
 já foram concluídos e quanto tempo mais precisa para ser finalizado.
+
+## Intalação e Execução
+
+```shell
+$ docker-compose up -d --build
+```
+
+## Usuários
+Cada usuário tem funções e permissões diferentes.
+
+Adiministrador
+> nickname: admin  
+> password: admin
+
+Atendente
+> nickname: atendente  
+> password: atendente
+
+Mecânico
+> nickname: mecanico  
+> password: mecanico
