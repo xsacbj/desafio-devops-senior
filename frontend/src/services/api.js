@@ -15,12 +15,16 @@ function logout() {
 }
 
 async function getMaintenance() {
-  return await api.get('/maintenances', null, {
+
+  const token = getToken();
+  console.log(token);
+
+  return await api.post('/maintenances', {
     headers: {
-      Authorization: `${getToken()}`,
-    },
+      'Authorization': token,
+    }
   });
 }
 
 
-export {login, logout};
+export {login, logout, getMaintenance};

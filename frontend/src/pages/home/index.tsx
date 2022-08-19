@@ -1,7 +1,8 @@
 import {Box, Container, Card, Button,Fab, Typography, List, ListItem, CardActionArea, CardContent, Chip} from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Add } from '@mui/icons-material'
 
+import { getMaintenance } from '../../services/api'
 import { convertTimeHoursToExtension, formatDateTime } from '../../utils/time'
 
 function Home(){
@@ -10,8 +11,8 @@ function Home(){
     {
       id: 1,
       licensePlate: "JTN-9005",
-      timeEstimate: 240,
-      status: "done",
+      timeEstimate: 38,
+      status: "inProgress",
       createAt: "2022-08-19T03:00:30"
     },
     {
@@ -22,6 +23,28 @@ function Home(){
       createAt: "2022-08-19T03:00:30"
     }
   ])
+
+  useEffect(() => {
+    getMaintenance().then((response) => {
+      console.log(response)
+      setMaintenances(response.data.maintenances)
+    }).catch((error) => {
+      console.log(error)
+    })
+  }, [])
+
+  function statusColor(status: string){
+    switch(status){
+      case "done":
+        return "#4caf50"
+      case "inProgress":
+        return "#2196f3"
+      case "pending":
+        return "#ff9800"
+      default:
+        return "default"
+    }
+  }
 
 
 
@@ -74,7 +97,7 @@ function Home(){
                       </Typography>
                       <Chip label={maintenance.status} 
                         sx={{
-                          backgroundColor: '#4caf50',
+                          backgroundColor: statusColor(maintenance.status),
                           color: '#fff',
                           margin: '0 0 20px  0',
                         }}
