@@ -14,17 +14,90 @@ function logout() {
   authLogout()
 }
 
-async function getMaintenance() {
+async function getMaintenances() {
 
   const token = getToken();
-  console.log(token);
 
-  return await api.post('/maintenances', {
+  return await api.get('/maintenances', {
+    headers: {
+      'Authorization': token,
+    }
+  });
+
+}
+
+async function getMaintenanceById(id) {
+  const token = getToken();
+
+  return await api.get(`/maintenance/${id}`, {
     headers: {
       'Authorization': token,
     }
   });
 }
 
+async function putMaintenanceById(id, data) {
+  const token = getToken();
 
-export {login, logout, getMaintenance};
+  return await api.put(`/maintenance/${id}`, data, {
+    headers: {
+      'Authorization': token,
+    }
+  });
+}
+
+async function putServiceById(id, data) {
+  const token = getToken();
+
+  return await api.put(`/service/${id}`, data, {
+    headers: {
+      'Authorization': token,
+    }
+  });
+}
+
+async function deleteMaintenanceById(id) {
+  const token = getToken();
+
+  return await api.delete(`/maintenance/${id}`, {
+    headers: {
+      'Authorization': token,
+    }
+  });
+}
+
+async function deleteServiceById(id) {
+  const token = getToken();
+
+  return await api.delete(`/service/${id}`, {
+    headers: {
+      'Authorization': token,
+    }
+  });
+}
+
+async function postMaintenance(data) {
+  const token = getToken();
+
+  return await api.post('/maintenance', data, {
+    headers: {
+      'Authorization': token,
+    }
+  });
+}
+
+async function postService(data) {
+  const token = getToken();
+
+  return await api.post('/service', data, {
+    headers: {
+      'Authorization': token,
+    }
+  });
+}
+
+export {
+  login, logout, getMaintenances, getMaintenanceById, 
+  putMaintenanceById, putServiceById, deleteMaintenanceById, 
+  deleteServiceById, postMaintenance, postService
+};

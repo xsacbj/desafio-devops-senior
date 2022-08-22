@@ -1,52 +1,49 @@
-import {Box, Container, Card, Button,Fab, Typography, List, ListItem, CardActionArea, CardContent, Chip} from '@mui/material'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import {Box, Container, Card, Fab, Typography, List, ListItem, CardActionArea, CardContent, Chip, Dialog, DialogTitle, DialogContent, TextField, DialogContentText, DialogActions, Button, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent} from '@mui/material'
 import { Add } from '@mui/icons-material'
 
-import { getMaintenance } from '../../services/api'
+import { getMaintenances, postMaintenance } from '../../services/api'
 import { convertTimeHoursToExtension, formatDateTime } from '../../utils/time'
 
-function Home(){
+import { Maintenance } from '../../interfaces/maintenance'
+import { statusColor } from '../../components/maintenance'
 
-  const [maintenances, setMaintenances] = useState<any>([
-    {
-      id: 1,
-      licensePlate: "JTN-9005",
-      timeEstimate: 38,
-      status: "inProgress",
-      createAt: "2022-08-19T03:00:30"
-    },
-    {
-      id: 2,
-      licensePlate: "JTN-9005",
-      timeEstimate: 240,
-      status: "done",
-      createAt: "2022-08-19T03:00:30"
-    }
-  ])
+
+function HomePage(){
+
+  const navigate = useNavigate()
+  const [maintenances, setMaintenances] = useState<Maintenance[]>([])
+  const [openDialog, setOpenDialog] = useState(false);
+  const [newLicensePlate, setNewLicensePlate] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("");
 
   useEffect(() => {
-    getMaintenance().then((response) => {
-      console.log(response)
+    getMaintenances().then((response) => {
       setMaintenances(response.data.maintenances)
     }).catch((error) => {
       console.log(error)
     })
   }, [])
 
-  function statusColor(status: string){
-    switch(status){
-      case "done":
-        return "#4caf50"
-      case "inProgress":
-        return "#2196f3"
-      case "pending":
-        return "#ff9800"
-      default:
-        return "default"
-    }
+  const handleClickDialog= () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  function handleChangeStatus(event: SelectChangeEvent) {
+    setFilterStatus(event.target.value as string);
   }
 
+  
 
+  function goToMaintenance(id: number){
+    navigate(`/maintenance/${id}`)
+  }
 
   return (
     <Box
@@ -76,27 +73,61 @@ function Home(){
         
       </Container>
       <Container>
+        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+          <InputLabel id="select-status-label">Status</InputLabel>
+          <Select
+            labelId="select-status-label"
+            id="select-status"
+            value={filterStatus}
+            label="Status"
+            onChange={handleChangeStatus}
+          >
+            <MenuItem value="">
+              <em>All</em>
+            </MenuItem>
+            <MenuItem value={"done"}>Done</MenuItem>
+            <MenuItem value={"inProgress"}>In Progress</MenuItem>
+            <MenuItem value={"pending"}>Pending</MenuItem>
+          </Select>
+        </FormControl>
+      </Container>
+      <Container>
         <List>
-          {maintenances?
-            maintenances.map((maintenance:any) => (
+          {maintenances.length>0?
+            maintenances
+              .filter((maintenance) => {
+                if (filterStatus === "") return true;
+                return maintenance.status === filterStatus;
+              })
+              .map((maintenance:any) => (
               <ListItem key={`maintenance_id_${maintenance.id}`}
                 sx={{
                 display: 'flex',
                 justifyContent: 'center',
                 }}
               >
-                <Card sx={{ 
-                  width: '100%',
-                  minWidth: 345,
-                  maxWidth: 445,
-                }}>
+                <Card 
+                  onClick={() => {
+                    goToMaintenance(maintenance.id)
+                  }}
+                  sx={{ 
+                    width: '100%',
+                    minWidth: 345,
+                    maxWidth: 445,
+                    animation: 'none'
+                  }}
+                >
                   <CardActionArea>
                     <CardContent>
+                      <Typography variant="body2" color="text.secondary">License Plate</Typography>
                       <Typography gutterBottom variant="h5" component="div">
                         {maintenance.licensePlate}
                       </Typography>
                       <Chip label={maintenance.status} 
                         sx={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '16px',
                           backgroundColor: statusColor(maintenance.status),
                           color: '#fff',
                           margin: '0 0 20px  0',
@@ -113,23 +144,68 @@ function Home(){
                 </Card>
               </ListItem>
             ))
-            : null
+            : (
+              <ListItem sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                }}>
+                <Typography variant="body1">No maintenances has found</Typography>
+              </ListItem>
+            )
           }
         </List>
-      </Container>
-      <Fab aria-label="add" sx={{
-          backgroundColor: '#3f51b5',
-          position: 'fixed',
-          bottom: '20px',
-          right: '10%',
-          minRight: '80px',
-        }}>
+
+        <Fab aria-label="add" sx={{
+            backgroundColor: '#3f51b5',
+            position: 'absolute',
+            bottom: '20px',
+            right: 'calc(15% - 20px)',
+          }}
+          onClick={handleClickDialog}
+        >
           <Add sx={{
             color: '#fff',
           }}/>
         </Fab>
+      </Container>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+              <DialogTitle>Create Maintenance</DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  Please, enter a new license plate
+                </DialogContentText>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="licensePlate"
+                  label="License Plate"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  value={newLicensePlate}
+                  onChange={(e) => setNewLicensePlate(e.target.value)}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDialog}>Cancel</Button>
+                <Button onClick={()=>{
+                  if(newLicensePlate !== ""){
+                    postMaintenance({
+                      licensePlate: newLicensePlate
+                    })
+                    .then(res=>{
+                      window.location.reload()
+                    })
+                    .catch((err)=>{
+                      console.log(err)
+                    })
+                  }
+                  handleCloseDialog()
+                }}>Create</Button>
+              </DialogActions>
+            </Dialog>
     </Box>
   )
 }
 
-export default Home
+export default HomePage

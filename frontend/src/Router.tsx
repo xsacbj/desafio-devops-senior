@@ -2,8 +2,9 @@ import React, { FC } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { isAuthenticated } from './services/auth';
 
-import Login from './pages/login';
-import Home from './pages/home';
+import LoginPage from './pages/login';
+import HomePage from './pages/home';
+import MaintenancePage from './pages/maintenance';
 
 const PrivateRoute: FC<any> = ({ component: Component, ...rest }) => {
   if (isAuthenticated()){
@@ -23,8 +24,9 @@ function NotFoundRedirect() {
 const MainRoutes = () => (
   <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login/>} />
-        <Route path="/home" element={<PrivateRoute component={()=>(<Home/>)} />} />
+        <Route path="/" element={<LoginPage/>} />
+        <Route path="/home" element={<PrivateRoute component={()=>(<HomePage/>)} />} />
+        <Route path="/maintenance/:id" element={<PrivateRoute component={()=>(<MaintenancePage/>)} />} />
         <Route path='/not-found' element={<NotFound/>} />
         <Route path="*"element={<NotFoundRedirect/>} />
       </Routes>

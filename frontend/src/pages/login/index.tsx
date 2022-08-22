@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'
 import {Box, Button, IconButton, Paper, TextField, FormControl, InputLabel, Input, Typography, InputAdornment} from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 import { login as apiLogin } from '../../services/api';
 import { login as authToken} from '../../services/auth';
 
-function Login(){
+function LoginPage(){
+  const navigate = useNavigate()
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -34,12 +36,14 @@ function Login(){
       setError(error.response.data.error);
     });
 
+    
     setLoading(false);
     
     if (response?.status === 200) {
       const { token } = response.data;
       authToken(token);
-      window.location.href = '/home';
+      navigate('/home');
+
     }
 
   }
@@ -121,4 +125,4 @@ function Login(){
   )
 }
 
-export default Login
+export default LoginPage
