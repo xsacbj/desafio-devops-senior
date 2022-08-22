@@ -2,10 +2,12 @@ import sys
 sys.path.append('..')
 
 from database.models.Maintenance import getMaintenance
+from services.service import ServiceService
 
 class MaintenanceService:
   def __init__(self):
     self.Maintenance = getMaintenance()
+    self.ServiceService = ServiceService()
 
   def list(self):    
     maintenances = self.Maintenance.query.all() 
@@ -14,8 +16,11 @@ class MaintenanceService:
 
   def findById(self, id):
     maintenance = self.Maintenance.query.filter_by(id=id).first()
+    maintenance = maintenance.serialize()
 
-    return maintenance.serialize()
+    maintenance['services'] = self.ServiceService.listByMaintenanceId(maintenance['id'])
+
+    return maintenance
   
   def findByLicensePlate(self, licensePlate):
     maintenance = self.Maintenance.query.filter_by(licensePlate=licensePlate).first()
