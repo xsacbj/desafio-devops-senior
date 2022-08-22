@@ -41,8 +41,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
     def dispatch(self, request, call_next):
         path = request.path
+        method = request.method
 
-        if path in self.ignore:
+        if path in self.ignore or method == "OPTIONS":
             return call_next(request)
 
         token = request.headers.get("Authorization")
@@ -51,8 +52,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
             decode = jwt.decode(token, secret, algorithms=["HS256"])
 
             user =  UserService().findById(decode["id"])
-
-            method = request.method
             
             permission = generatePermission(method, path)
 
