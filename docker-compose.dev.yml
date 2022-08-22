@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: "secret"
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+    networks:
+      - car-factory-network
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "CarFactory"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./backend/db:/var/lib/mysql
+    networks:
+      - car-factory-network
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - car-factory-network
+
+networks: 
+  car-factory-network:
+    driver: bridge
